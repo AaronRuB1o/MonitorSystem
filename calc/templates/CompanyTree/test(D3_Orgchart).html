@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Page</title>
+    {% load static %}
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
+  </head>
+  <body>
+    <form onsubmit="filterChart(event)">
+      <input type="search" placeholder="Search by name" id="searchInput" />
+      <input type="submit" value="Search" />
+    </form>
+    <div class="chart-container"></div>
+    <script>
+      let chart;
+
+      function filterChart(event) {
+        event.preventDefault();
+        const value = document.getElementById("searchInput").value.trim();
+        console.log("Submitting search", value);
+
+        // Clear previous higlighting
+        chart.clearHighlighting();
+
+        // Get chart nodes
+        const data = chart.data();
+
+        data.forEach((d) => {
+          d._expanded = false;
+          d._highlighted = false;
+        });
+
+        // Loop over data and check if input value matches any name
+        data.forEach((d) => {
+          const name = d["EE Name"];
+          if (value != "" && name.toLowerCase().includes(value.toLowerCase())) {
+            // If it's a match, mark the node as highlighted and expanded
+            d._highlighted = true;
+            d._expanded = true;
+          }
+        });
+
+        // Update data and rerender graph
+        chart.data(data).render().fit();
+
+        console.log("filtering chart", e.srcElement.value);
+      }
+
+      d3.csv("{% static 'CompanyTree/images/OrgChartMatrix.csv' %}").then(
+        function (data) {
+
+          data.forEach((d) => {
+            if (d["EE username"] === "cavondo") {
+              d["SUP username"] = null;
+            }
+          });
+
+          console.log("Data:", data);
+          chart = new d3.OrgChart()
+            .nodeId((d) => d["EE username"])
+            .parentNodeId((d) => d["SUP username"])
+            .nodeWidth((d) => 250)
+            .initialZoom(0.7)
+            .nodeHeight((d) => 175)
+            .childrenMargin((d) => 40)
+            .compactMarginBetween((d) => 15)
+            .compactMarginPair((d) => 80)
+            .nodeContent(function (d, i, arr, state) {
+              return `
+              <div style="padding-top:30px;background-color:none;margin-left:1px;height:${
+                d.height
+              }px;border-radius:2px;overflow:visible">
+                <div style="height:${
+                  d.height - 32
+                }px;padding-top:0px;background-color:white;border:1px solid lightgray;">
+
+                  <img src=" ${
+                    d.data.imageUrl
+                  }" style="margin-top:-30px;margin-left:${d.width / 2 - 30}px;border-radius:100px;width:60px;height:60px;" />
+                
+                <div style="margin-top:-30px;background-color:#3AB6E3;height:10px;width:${
+                  d.width - 2
+                }px;border-radius:1px"></div>
+
+                <div style="padding:20px; padding-top:35px;text-align:center">
+                    <div style="color:#111672;font-size:16px;font-weight:bold"> ${
+                      d.data['EE Name']
+                    } </div>
+                    <div style="color:#404040;font-size:16px;margin-top:4px"> ${
+                      d.data['EE Job Title']
+                    } </div>
+                </div> 
+                <div style="display:flex;justify-content:space-between;padding-left:15px;padding-right:15px;">
+                  <div > Manages:  ${d.data._directSubordinates} 👤</div>  
+                  <div > Oversees: ${d.data._totalSubordinates} 👤</div>    
+                </div>
+                </div>     
+        </div>
+    `;
+            })
+            .container(".chart-container")
+            .data(data)
+            .compact(false)
+            .render();
+        }
+      );
+    </script>
+  </body>
+</html>

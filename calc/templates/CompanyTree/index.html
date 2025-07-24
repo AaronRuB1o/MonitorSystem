@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
+    {% load static %}
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css"
+    />
+    <link rel="stylesheet" href="{% static 'MonitorSystem/css/style.css' %}" />
+    <title>Xinyx Monitoring System</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-custom navbar-mainbg">
+      <a class="navbar-brand navbar-logo"
+        ><img
+          class="company_logo"
+          src="https://monitoringsystemaaronrub1o.s3.us-east-1.amazonaws.com/Logo.png"
+          alt="My image"
+        />
+        <br />
+        NextGen
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <i class="fas fa-bars text-white"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <div class="hori-selector">
+            <div class="left"></div>
+            <div class="right"></div>
+          </div>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'monitoring' %}"
+              ><i class="fas fa-signal"></i>Monitoring System</a
+            >
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'companyTree' %}"
+              ><i class="far fa-address-book"></i>Company Tree</a
+            >
+          </li>
+          <!--
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-clone"></i>Components</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-calendar-alt"></i>Calendar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-chart-bar"></i>Charts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-copy"></i>Documents</a>
+                </li>
+                -->
+        </ul>
+      </div>
+    </nav>
+
+    <form onsubmit="filterChart(event)">
+      <input type="search" placeholder="Search by name" id="searchInput" />
+      <input type="submit" value="Search" />
+    </form>
+
+    <button onclick="chart.compact(false).render().fit()">Horizontal</button>
+    <button onclick="chart.compact(true).render().fit()">Compact</button>
+    <button onclick="chart.expandAll().fit()">Expand All</button>
+    <button onclick="chart.collapseAll().fit()">Collapse All</button>
+
+    <div class="chart-container"></div>
+    <script>
+      let chart;
+
+      function filterChart(event) {
+
+        event.preventDefault();
+        const value = document.getElementById("searchInput").value.trim();
+        // console.log("Submitting search", value);
+        if (!chart) {
+          console.error("Chart not initialized.");
+          return;
+        }
+        if (value === "") {
+          chart.render();
+          return;
+        }
+
+        // Clear previous higlighting
+        chart.clearHighlighting();
+
+        // Get chart nodes
+        const data = chart.data();
+
+        // Loop over data and check if input value matches any name
+        data.forEach((d) => {
+
+          d._expanded = false;
+          d._highlighted = false;
+          const name = d["EE Name"];
+          if (value != "" && name.toLowerCase().includes(value.toLowerCase())) {
+            // If it's a match, mark the node as highlighted and expanded
+            d._highlighted = true;
+            d._expanded = true;
+          }
+        });
+        const chartInstance = chart.data(data);
+
+        chartInstance.setActiveNodeCentered();
+        chartInstance.render();
+        chartInstance.fit();
+
+      }
+
+      d3.csv("{% static 'CompanyTree/images/OrgChartMatrix.csv' %}").then(
+        function (data) {
+          const usernameCountMap = new Map();
+          
+          data.forEach((d) => {
+            if (d["EE username"] === "cavondo") {
+              d["SUP username"] = null;
+            }
+            
+          });
+
+          chart = new d3.OrgChart()
+            .nodeId((d) => d["EE username"])
+            .parentNodeId((d) => d["SUP username"])
+            .nodeWidth((d) => 250)
+            .initialZoom(0.7)
+            .nodeHeight((d) => 200)
+            .linkUpdate(function (d, i, arr) {
+              d3.select(this)
+                .attr("stroke", "#2980b9")
+                .attr("stroke-width", "3px")
+                .attr("stroke-linecap", "butt");
+            })
+            .nodeContent(function (d, i, arr, state) {
+              // const imgURL = 'http://intra.xinyxsemicon.com/orgchart/img/' + d.data["EE username"] + '_pic.jpg'
+              const imageDiffVert = 25 + 2;
+              return `
+                  <div style="border-radius: 10px;background-color: #2980b9; width: ${d.width}px; height: ${d.height}px; padding-top: ${imageDiffVert - 2}px; padding-left: 1px; padding-right: 1px;">
+                        <div style="font-family: 'Inter', sans-serif; background-color: #edebeb; margin-top: -15px; margin-left: -1px; width: ${d.width}px; height: ${d.height - imageDiffVert}px; 
+                      border-radius: 10px;border: ${d.data._highlighted || d.data._upToTheRootHighlighted ? '5px solid #E27396' : '1px solid #E4E2E9'}">
+                            <div style="background-color: #2980b9; margin-top: ${-imageDiffVert + 45}px; margin-left: 95px; border-radius: 100px; width: 50px; height: 50px;"></div>
+                            <div style="margin-top: ${-imageDiffVert - 30}px;">
+                                <img src="" style="margin-left: 90px; border-radius: 100px; width: 65px; height: 65px;" />
+                            </div>
+                          <div style="margin-top: 20px;text-align: center;color: #111672; font-size: 16px; font-weight: bold;">${d.data["EE Name"]}</div>
+                          <div style="text-align: center;color: #404040; font-size: 16px; margin-top: 4px;">${d.data["EE Job Title"]}</div>
+                        </div>
+                        <div style="border-radius: 10px;width: ${d.width -2}px;background-color: #2980b9; display: flex; justify-content: space-between; padding-left: 10px; padding-right: 15px;">
+                          <div>Manages: ${d.data._directSubordinates} 👤</div>
+                          <div>Oversees: ${d.data._totalSubordinates} 👤</div>
+                        </div>
+                    </div>
+              `;
+            })
+            .container(".chart-container")
+            .data(data)
+            .compact(false)
+            .setActiveNodeCentered(true)
+            .duration(500)
+            .render();
+        }
+      );
+    </script>
+    {% load static %}
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
+    <script src="{% static 'MonitorSystem/js/script.js' %}"></script>
+  </body>
+</html>

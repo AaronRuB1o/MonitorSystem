@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Organization Chart Plugin</title>
+  {% load static %}
+  
+  <link rel="icon" href="{% static 'CompanyTree/images/_logo.png' %}">
+  <link rel="stylesheet" href="{% static 'CompanyTree/css/_style.css' %}">
+  <link rel="stylesheet" href="{% static 'CompanyTree/css/fontawesome.min.css' %}">
+  <link rel="stylesheet" href="{% static 'CompanyTree/css/jquery.orgchart.css' %}">
+  <style type="text/css">
+    .orgchart { background: rgb(255, 255, 255); }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+  <script src="{% static 'CompanyTree/js/jquery.min.js' %}"></script>
+  <script src="{% static 'CompanyTree/js/jquery.orgchart.js' %}"></script>
+  {% load custom_filters %}
+  <script>
+    $.ajax({
+        url: '{% url "renderData" %}',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            console.log(data);
+            // Load the data into the OrgChart
+            $('#chart-container').orgchart({
+                'data': data,
+                'verticallevl': 5,
+                'nodeTitle': 'nodeTitlePro',
+                'nodeContent': 'nodeContentPro',
+                'compact': function(data){
+                  return data?.children?.length >= 10;
+                }
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+        }
+    });
+</script>
+
+
+</body>
+</html>

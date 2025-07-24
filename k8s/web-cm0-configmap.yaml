@@ -1,0 +1,785 @@
+apiVersion: v1
+data:
+  .dockerignore: |-
+    __pycache__/
+    *.pyc
+    *.pyo
+    *.pyd
+    *.db
+    *.sqlite3
+    env/
+    venv/
+    *.env
+    *.log
+  Dockerfile: |
+    FROM python:3.13-slim
+
+    # Avoid creating .pyc files and ensure logs are flushed immediately
+    ENV PYTHONDONTWRITEBYTECODE=1 \
+        PYTHONUNBUFFERED=1
+
+    # Set work directory
+    WORKDIR /app
+
+    # Install system dependencies (for mysqlclient)
+    RUN apt-get update && apt-get install -y \
+        default-libmysqlclient-dev gcc pkg-config \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install the application dependencies
+    COPY requirements.txt ./
+    RUN pip install --no-cache-dir -r requirements.txt
+
+    # Copy in the source code
+    COPY . .
+    # Expose port
+    EXPOSE 8000
+
+    # Run the Django development server
+    CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+  backup.sql: |
+    -- MySQL dump 10.13  Distrib 8.0.37, for Win64 (x86_64)
+    --
+    -- Host: localhost    Database: CompanyDB
+    -- ------------------------------------------------------
+    -- Server version	8.0.37
+
+    /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+    /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+    /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+    /*!50503 SET NAMES utf8mb4 */;
+    /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+    /*!40103 SET TIME_ZONE='+00:00' */;
+    /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+    /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+    /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+    /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+    --
+    -- Table structure for table `auth_group`
+    --
+
+    DROP TABLE IF EXISTS `auth_group`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `auth_group` (
+      `id` int NOT NULL AUTO_INCREMENT,
+      `name` varchar(150) NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `name` (`name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `auth_group`
+    --
+
+    LOCK TABLES `auth_group` WRITE;
+    /*!40000 ALTER TABLE `auth_group` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `auth_group` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `auth_group_permissions`
+    --
+
+    DROP TABLE IF EXISTS `auth_group_permissions`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `auth_group_permissions` (
+      `id` bigint NOT NULL AUTO_INCREMENT,
+      `group_id` int NOT NULL,
+      `permission_id` int NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `auth_group_permissions_group_id_permission_id_0cd325b0_uniq` (`group_id`,`permission_id`),
+      KEY `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` (`permission_id`),
+      CONSTRAINT `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
+      CONSTRAINT `auth_group_permissions_group_id_b120cbf9_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `auth_group_permissions`
+    --
+
+    LOCK TABLES `auth_group_permissions` WRITE;
+    /*!40000 ALTER TABLE `auth_group_permissions` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `auth_group_permissions` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `auth_permission`
+    --
+
+    DROP TABLE IF EXISTS `auth_permission`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `auth_permission` (
+      `id` int NOT NULL AUTO_INCREMENT,
+      `name` varchar(255) NOT NULL,
+      `content_type_id` int NOT NULL,
+      `codename` varchar(100) NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
+      CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `auth_permission`
+    --
+
+    LOCK TABLES `auth_permission` WRITE;
+    /*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
+    INSERT INTO `auth_permission` VALUES (1,'Can add monitoring',1,'add_monitoring'),(2,'Can change monitoring',1,'change_monitoring'),(3,'Can delete monitoring',1,'delete_monitoring'),(4,'Can view monitoring',1,'view_monitoring'),(5,'Can add log entry',2,'add_logentry'),(6,'Can change log entry',2,'change_logentry'),(7,'Can delete log entry',2,'delete_logentry'),(8,'Can view log entry',2,'view_logentry'),(9,'Can add permission',3,'add_permission'),(10,'Can change permission',3,'change_permission'),(11,'Can delete permission',3,'delete_permission'),(12,'Can view permission',3,'view_permission'),(13,'Can add group',4,'add_group'),(14,'Can change group',4,'change_group'),(15,'Can delete group',4,'delete_group'),(16,'Can view group',4,'view_group'),(17,'Can add user',5,'add_user'),(18,'Can change user',5,'change_user'),(19,'Can delete user',5,'delete_user'),(20,'Can view user',5,'view_user'),(21,'Can add content type',6,'add_contenttype'),(22,'Can change content type',6,'change_contenttype'),(23,'Can delete content type',6,'delete_contenttype'),(24,'Can view content type',6,'view_contenttype'),(25,'Can add session',7,'add_session'),(26,'Can change session',7,'change_session'),(27,'Can delete session',7,'delete_session'),(28,'Can view session',7,'view_session');
+    /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `auth_user`
+    --
+
+    DROP TABLE IF EXISTS `auth_user`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `auth_user` (
+      `id` int NOT NULL AUTO_INCREMENT,
+      `password` varchar(128) NOT NULL,
+      `last_login` datetime(6) DEFAULT NULL,
+      `is_superuser` tinyint(1) NOT NULL,
+      `username` varchar(150) NOT NULL,
+      `first_name` varchar(150) NOT NULL,
+      `last_name` varchar(150) NOT NULL,
+      `email` varchar(254) NOT NULL,
+      `is_staff` tinyint(1) NOT NULL,
+      `is_active` tinyint(1) NOT NULL,
+      `date_joined` datetime(6) NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `username` (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `auth_user`
+    --
+
+    LOCK TABLES `auth_user` WRITE;
+    /*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `auth_user_groups`
+    --
+
+    DROP TABLE IF EXISTS `auth_user_groups`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `auth_user_groups` (
+      `id` bigint NOT NULL AUTO_INCREMENT,
+      `user_id` int NOT NULL,
+      `group_id` int NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `auth_user_groups_user_id_group_id_94350c0c_uniq` (`user_id`,`group_id`),
+      KEY `auth_user_groups_group_id_97559544_fk_auth_group_id` (`group_id`),
+      CONSTRAINT `auth_user_groups_group_id_97559544_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
+      CONSTRAINT `auth_user_groups_user_id_6a12ed8b_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `auth_user_groups`
+    --
+
+    LOCK TABLES `auth_user_groups` WRITE;
+    /*!40000 ALTER TABLE `auth_user_groups` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `auth_user_groups` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `auth_user_user_permissions`
+    --
+
+    DROP TABLE IF EXISTS `auth_user_user_permissions`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `auth_user_user_permissions` (
+      `id` bigint NOT NULL AUTO_INCREMENT,
+      `user_id` int NOT NULL,
+      `permission_id` int NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `auth_user_user_permissions_user_id_permission_id_14a6b632_uniq` (`user_id`,`permission_id`),
+      KEY `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` (`permission_id`),
+      CONSTRAINT `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
+      CONSTRAINT `auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `auth_user_user_permissions`
+    --
+
+    LOCK TABLES `auth_user_user_permissions` WRITE;
+    /*!40000 ALTER TABLE `auth_user_user_permissions` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `auth_user_user_permissions` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `django_admin_log`
+    --
+
+    DROP TABLE IF EXISTS `django_admin_log`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `django_admin_log` (
+      `id` int NOT NULL AUTO_INCREMENT,
+      `action_time` datetime(6) NOT NULL,
+      `object_id` longtext,
+      `object_repr` varchar(200) NOT NULL,
+      `action_flag` smallint unsigned NOT NULL,
+      `change_message` longtext NOT NULL,
+      `content_type_id` int DEFAULT NULL,
+      `user_id` int NOT NULL,
+      PRIMARY KEY (`id`),
+      KEY `django_admin_log_content_type_id_c4bce8eb_fk_django_co` (`content_type_id`),
+      KEY `django_admin_log_user_id_c564eba6_fk_auth_user_id` (`user_id`),
+      CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
+      CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
+      CONSTRAINT `django_admin_log_chk_1` CHECK ((`action_flag` >= 0))
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `django_admin_log`
+    --
+
+    LOCK TABLES `django_admin_log` WRITE;
+    /*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `django_content_type`
+    --
+
+    DROP TABLE IF EXISTS `django_content_type`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `django_content_type` (
+      `id` int NOT NULL AUTO_INCREMENT,
+      `app_label` varchar(100) NOT NULL,
+      `model` varchar(100) NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `django_content_type`
+    --
+
+    LOCK TABLES `django_content_type` WRITE;
+    /*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
+    INSERT INTO `django_content_type` VALUES (2,'admin','logentry'),(4,'auth','group'),(3,'auth','permission'),(5,'auth','user'),(1,'calc','monitoring'),(6,'contenttypes','contenttype'),(7,'sessions','session');
+    /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `django_migrations`
+    --
+
+    DROP TABLE IF EXISTS `django_migrations`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `django_migrations` (
+      `id` bigint NOT NULL AUTO_INCREMENT,
+      `app` varchar(255) NOT NULL,
+      `name` varchar(255) NOT NULL,
+      `applied` datetime(6) NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `django_migrations`
+    --
+
+    LOCK TABLES `django_migrations` WRITE;
+    /*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
+    INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2025-07-22 05:32:12.064050'),(2,'auth','0001_initial','2025-07-22 05:32:12.460565'),(3,'admin','0001_initial','2025-07-22 05:32:12.563057'),(4,'admin','0002_logentry_remove_auto_add','2025-07-22 05:32:12.569538'),(5,'admin','0003_logentry_add_action_flag_choices','2025-07-22 05:32:12.576438'),(6,'contenttypes','0002_remove_content_type_name','2025-07-22 05:32:12.644136'),(7,'auth','0002_alter_permission_name_max_length','2025-07-22 05:32:12.698384'),(8,'auth','0003_alter_user_email_max_length','2025-07-22 05:32:12.726991'),(9,'auth','0004_alter_user_username_opts','2025-07-22 05:32:12.733553'),(10,'auth','0005_alter_user_last_login_null','2025-07-22 05:32:12.788547'),(11,'auth','0006_require_contenttypes_0002','2025-07-22 05:32:12.790940'),(12,'auth','0007_alter_validators_add_error_messages','2025-07-22 05:32:12.796985'),(13,'auth','0008_alter_user_username_max_length','2025-07-22 05:32:12.852524'),(14,'auth','0009_alter_user_last_name_max_length','2025-07-22 05:32:12.908226'),(15,'auth','0010_alter_group_name_max_length','2025-07-22 05:32:12.925131'),(16,'auth','0011_update_proxy_permissions','2025-07-22 05:32:12.932603'),(17,'auth','0012_alter_user_first_name_max_length','2025-07-22 05:32:12.987190'),(18,'calc','0001_initial','2025-07-22 05:32:12.988744'),(19,'calc','0002_initial','2025-07-22 05:32:13.000438'),(20,'sessions','0001_initial','2025-07-22 05:32:13.024251');
+    /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `django_session`
+    --
+
+    DROP TABLE IF EXISTS `django_session`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `django_session` (
+      `session_key` varchar(40) NOT NULL,
+      `session_data` longtext NOT NULL,
+      `expire_date` datetime(6) NOT NULL,
+      PRIMARY KEY (`session_key`),
+      KEY `django_session_expire_date_a5c62663` (`expire_date`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `django_session`
+    --
+
+    LOCK TABLES `django_session` WRITE;
+    /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    --
+    -- Table structure for table `monitoring`
+    --
+
+    DROP TABLE IF EXISTS `monitoring`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `monitoring` (
+      `Site` varchar(255) NOT NULL,
+      `PC-Tag` varchar(255) NOT NULL,
+      `MAC` varchar(255) NOT NULL,
+      `User` varchar(255) NOT NULL,
+      `Local_IP` varchar(255) NOT NULL,
+      `Patch_V2` varchar(255) NOT NULL,
+      `vpncfg_nc` varchar(255) NOT NULL,
+      `x_scr` varchar(255) NOT NULL,
+      `x_zm` varchar(255) NOT NULL,
+      `ldap_ipa2` varchar(255) NOT NULL,
+      `ldaprs` varchar(255) NOT NULL,
+      `chmd_ipa` varchar(255) NOT NULL,
+      `incog` varchar(255) NOT NULL,
+      PRIMARY KEY (`MAC`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `monitoring`
+    --
+
+    LOCK TABLES `monitoring` WRITE;
+    /*!40000 ALTER TABLE `monitoring` DISABLE KEYS */;
+    INSERT INTO `monitoring` VALUES ('Cebu','PC-524','0a:3e:4d:d4:dc:48','thomaserica','96.105.47.142','v1.2','vpn-44','x_scr_5','x_zm_3','ldap_ipa2_2','ldaprs_4','chmd_ipa_3','False'),('Manila','PC-287','0e:eb:55:ff:c0:85','jessica47','92.235.221.71','v2.3','vpn-96','x_scr_1','x_zm_1','ldap_ipa2_2','ldaprs_1','chmd_ipa_4','False'),('Cebu','PC-105','24:9e:19:43:77:2b','csanders','83.198.255.190','v2.2','vpn-23','x_scr_5','x_zm_4','ldap_ipa2_1','ldaprs_5','chmd_ipa_5','False'),('Davao','PC-298','2c:e3:90:93:69:cc','smithjoseph','209.4.49.122','v2.3','vpn-9','x_scr_4','x_zm_2','ldap_ipa2_5','ldaprs_2','chmd_ipa_5','False'),('Cebu','PC-503','2e:de:b4:dd:99:51','cnicholson','124.63.38.45','v3.1','vpn-91','x_scr_4','x_zm_2','ldap_ipa2_5','ldaprs_3','chmd_ipa_3','False'),('Cebu','PC-562','38:44:04:c4:bd:79','davisamy','95.27.186.239','v1.2','vpn-41','x_scr_2','x_zm_3','ldap_ipa2_5','ldaprs_1','chmd_ipa_5','True'),('Davao','PC-903','3e:bf:ef:79:9b:bd','uchapman','152.94.35.143','v1.8','vpn-94','x_scr_3','x_zm_2','ldap_ipa2_1','ldaprs_1','chmd_ipa_4','True'),('Manila','PC-931','46:61:a6:a7:f0:e3','ebanks','140.173.88.136','v2.1','vpn-23','x_scr_4','x_zm_1','ldap_ipa2_4','ldaprs_1','chmd_ipa_4','False'),('Davao','PC-200','48:49:f8:e2:20:d7','reyesalexander','16.98.11.246','v1.7','vpn-12','x_scr_1','x_zm_4','ldap_ipa2_2','ldaprs_4','chmd_ipa_4','True'),('Clark','PC-718','48:bc:1b:52:c5:15','edwardhicks','82.41.217.205','v2.2','vpn-85','x_scr_3','x_zm_5','ldap_ipa2_1','ldaprs_2','chmd_ipa_2','True'),('Clark','PC-676','50:16:e7:ac:80:33','kellyortiz','82.183.162.3','v1.6','vpn-11','x_scr_5','x_zm_4','ldap_ipa2_3','ldaprs_4','chmd_ipa_4','True'),('Cebu','PC-262','50:f9:48:0d:f5:10','brandy35','219.227.130.131','v2.3','vpn-51','x_scr_1','x_zm_1','ldap_ipa2_4','ldaprs_1','chmd_ipa_4','True'),('Davao','PC-191','66:fd:f8:10:91:62','kristenphillips','191.99.115.137','v3.0','vpn-93','x_scr_3','x_zm_3','ldap_ipa2_3','ldaprs_5','chmd_ipa_1','True'),('Davao','PC-817','8e:4b:7e:cc:0f:90','jonathanjefferson','187.215.211.108','v3.2','vpn-36','x_scr_1','x_zm_5','ldap_ipa2_5','ldaprs_1','chmd_ipa_4','True'),('Cebu','PC-754','a2:07:0d:54:a5:05','millerkevin','187.43.190.232','v1.8','vpn-86','x_scr_1','x_zm_2','ldap_ipa2_3','ldaprs_4','chmd_ipa_3','False'),('Cebu','PC-132','aa:41:a3:ba:2f:05','lindsey91','10.69.9.194','v3.1','vpn-20','x_scr_2','x_zm_4','ldap_ipa2_4','ldaprs_2','chmd_ipa_2','False'),('Manila','PC-612','b4:76:ff:1f:27:56','stewartwilliam','93.68.27.104','v4.4','vpn-68','x_scr_3','x_zm_5','ldap_ipa2_5','ldaprs_4','chmd_ipa_2','False'),('Clark','PC-368','ba:3c:e7:f6:4e:93','pmccullough','172.195.6.37','v4.7','vpn-45','x_scr_5','x_zm_4','ldap_ipa2_1','ldaprs_4','chmd_ipa_1','True'),('Manila','PC-663','e8:e8:85:83:a6:cf','ftaylor','55.185.43.183','v2.2','vpn-85','x_scr_4','x_zm_2','ldap_ipa2_5','ldaprs_1','chmd_ipa_1','True'),('Cebu','PC-695','fc:62:56:6b:3d:52','ksimmons','39.20.56.230','v3.3','vpn-85','x_scr_4','x_zm_2','ldap_ipa2_2','ldaprs_2','chmd_ipa_2','True');
+    /*!40000 ALTER TABLE `monitoring` ENABLE KEYS */;
+    UNLOCK TABLES;
+    /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+    /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+    /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+    /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+    /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+    /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+    /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+    /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+    -- Dump completed on 2025-07-22 20:24:09
+  db.sqlite3: ""
+  docker-compose.yml: |
+    services:
+      db:
+        image: mysql
+        restart: unless-stopped
+        environment:
+          MYSQL_DATABASE: CompanyDB
+          MYSQL_USER: Aaron
+          MYSQL_PASSWORD: 1234
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - "3307:3306"
+        volumes:
+          - mysql_data:/var/lib/mysql
+        healthcheck:
+          test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+
+      web:
+        build: .
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+          - .:/app
+        ports:
+          - "8000:8000"
+        depends_on:
+          - db
+        environment:
+          DB_NAME: CompanyDB
+          DB_USER: Aaron
+          DB_PASSWORD: 1234
+          DB_HOST: db
+          DB_PORT: 3306
+
+    volumes:
+      mysql_data:
+  manage.py: |
+    #!/usr/bin/env python
+    """Django's command-line utility for administrative tasks."""
+    import os
+    import sys
+
+
+    def main():
+        """Run administrative tasks."""
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'MonitorSystem.settings')
+        try:
+            from django.core.management import execute_from_command_line
+        except ImportError as exc:
+            raise ImportError(
+                "Couldn't import Django. Are you sure it's installed and "
+                "available on your PYTHONPATH environment variable? Did you "
+                "forget to activate a virtual environment?"
+            ) from exc
+        execute_from_command_line(sys.argv)
+
+
+    if __name__ == '__main__':
+        main()
+  populate_monitoring.py: |-
+    from faker import Faker
+    from calc.models import Monitoring
+    import random
+
+    fake = Faker()
+
+    sites = ['Manila', 'Cebu', 'Davao', 'Clark']
+    patch_versions = [f"v{major}.{minor}" for major in range(1, 5) for minor in range(10)]
+
+    for _ in range(30):  # Generate 20 entries
+        Monitoring.objects.create(
+            Site=random.choice(sites),
+            PC_tag=f"PC-{random.randint(100, 999)}",
+            MAC=fake.unique.mac_address(),
+            User=fake.user_name(),
+            Local_IP=fake.ipv4(),
+            Patch_V2=random.choice(patch_versions),
+            vpncfg_nc=f"vpn-{random.randint(1,100)}",
+            x_scr=f"x_scr_{random.randint(1,5)}",
+            x_zm=f"x_zm_{random.randint(1,5)}",
+            ldap_ipa2=f"ldap_ipa2_{random.randint(1,5)}",
+            ldaprs=f"ldaprs_{random.randint(1,5)}",
+            chmd_ipa=f"chmd_ipa_{random.randint(1,5)}",
+            incog=random.choice(["True", "False"])
+        )
+
+    print("20 dummy Monitoring records inserted.")
+  requirements.txt: |
+    asgiref==3.9.1
+    Django==5.2.4
+    Faker==37.4.2
+    mysqlclient==2.2.7
+    sqlparse==0.5.3
+    tzdata==2025.2
+  updated_sample_emails.csv: |
+    Unnamed: 0,EE Name,EE username,SUP NAME,SUP username,EE Email,EE Job Title
+    1,"Avondo, Charade",cavondo,,-,sample.email@example.com,President / General Manager
+    2,"Ocrisma, Arturo Jr.",apocrisma,"Avondo, Charade",cavondo,sample.email@example.com,Operations Manager
+    3,"Castillo, Sermilla",smcastillo,"Ocrisma, Arturo Jr.",apocrisma,sample.email@example.com,"(job title placeholder, update sheet)"
+    4,"Baril, Lina Fe",lfbaril,"Ocrisma, Arturo Jr.",apocrisma,sample.email@example.com,"(job title placeholder, update sheet)"
+    5,"Caas, Daisy",dbcaas,"Ocrisma, Arturo Jr.",apocrisma,sample.email@example.com,"(job title placeholder, update sheet)"
+    6,"Carandang, Marc Kevin",mpcarandang,"Castillo, Sermilla",smcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    7,"Garing, Gerenz",glgaring,"Castillo, Sermilla",smcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    8,"Abrogue&#241;a, John Raymond",jabroguena,"Baril, Lina Fe",lfbaril,sample.email@example.com,"(job title placeholder, update sheet)"
+    9,"De Castro, Melvin",mndecastro,"Baril, Lina Fe",lfbaril,sample.email@example.com,"(job title placeholder, update sheet)"
+    10,"Cabral, Eduardo Jr.",eicabral,"Baril, Lina Fe",lfbaril,sample.email@example.com,"(job title placeholder, update sheet)"
+    11,"Cristobal, Julina Rose",jgcristobal,"Baril, Lina Fe",lfbaril,sample.email@example.com,"(job title placeholder, update sheet)"
+    12,"Rollan, Mimi",mmrollan,"Caas, Daisy",dbcaas,sample.email@example.com,"(job title placeholder, update sheet)"
+    13,"Villareal, Jerald",jnvillareal,"Caas, Daisy",dbcaas,sample.email@example.com,"(job title placeholder, update sheet)"
+    14,"Togonon, Olivier",obtogonon,"Villareal, Jerald",jnvillareal,sample.email@example.com,"(job title placeholder, update sheet)"
+    15,"Marica, Grace Ann",glmarica,"Villareal, Jerald",jnvillareal,sample.email@example.com,"(job title placeholder, update sheet)"
+    16,"Castalone, Bren",bucastalone,"Villareal, Jerald",jnvillareal,sample.email@example.com,"(job title placeholder, update sheet)"
+    17,"Pangilinan, Marvin",mrpangilinan,"Villareal, Jerald",jnvillareal,sample.email@example.com,"(job title placeholder, update sheet)"
+    18,"Boquio, Mark Dominic",mtboquio,"Togonon, Olivier",obtogonon,sample.email@example.com,"(job title placeholder, update sheet)"
+    19,"Marcilla, Ric John",rgmarcilla,"Togonon, Olivier",obtogonon,sample.email@example.com,"(job title placeholder, update sheet)"
+    20,"Meroy, Mark Lemmuel",mameroy,"Togonon, Olivier",obtogonon,sample.email@example.com,"(job title placeholder, update sheet)"
+    21,"Tila, Angelo",agtila,"Togonon, Olivier",obtogonon,sample.email@example.com,"(job title placeholder, update sheet)"
+    22,"Galman, Johnson Paul",jpgalman,"Marica, Grace Ann",glmarica,sample.email@example.com,"(job title placeholder, update sheet)"
+    23,"Gimelo Jr., Sonny",sbgimelo,"Marica, Grace Ann",glmarica,sample.email@example.com,"(job title placeholder, update sheet)"
+    24,"Sanchez, Carmina Louden",cpsanchez,"Marica, Grace Ann",glmarica,sample.email@example.com,"(job title placeholder, update sheet)"
+    25,"Barrion, John Carlo",jdbarrion,"Castalone, Bren",bucastalone,sample.email@example.com,"(job title placeholder, update sheet)"
+    26,"Espinosa, Jan Michael",jdespinosa,"Castalone, Bren",bucastalone,sample.email@example.com,"(job title placeholder, update sheet)"
+    27,"Quiatchon, Bien Paolo",bcquiatchon,"Castalone, Bren",bucastalone,sample.email@example.com,"(job title placeholder, update sheet)"
+    28,"Se, Lenette",lsse,"Castalone, Bren",bucastalone,sample.email@example.com,"(job title placeholder, update sheet)"
+    29,"Buena, Jomel C",jcbuena,"Pangilinan, Marvin",mrpangilinan,sample.email@example.com,"(job title placeholder, update sheet)"
+    30,"Olivares, Van Raymund",vfolivares,"Pangilinan, Marvin",mrpangilinan,sample.email@example.com,"(job title placeholder, update sheet)"
+    31,"Pante, Ian Benigno",icpante,"Pangilinan, Marvin",mrpangilinan,sample.email@example.com,"(job title placeholder, update sheet)"
+    32,"Salimbagat, Marigold",mcsalimbagat,"Pangilinan, Marvin",mrpangilinan,sample.email@example.com,"(job title placeholder, update sheet)"
+    33,"Mehoy, Meliza",mbcapino,"Caas, Daisy",dbcaas,sample.email@example.com,"(job title placeholder, update sheet)"
+    34,"Albarracin, Renee Anne",rvalbarracin,"Caas, Daisy",dbcaas,sample.email@example.com,"(job title placeholder, update sheet)"
+    35,"Castillo, Frank Angelo",fdcastillo,"Caas, Daisy",dbcaas,sample.email@example.com,"(job title placeholder, update sheet)"
+    36,"Patron, Filip",fcpatron,"Caas, Daisy",dbcaas,sample.email@example.com,"(job title placeholder, update sheet)"
+    37,"Suan, Jerome",jfsuan,"Patron, Filip",fcpatron,sample.email@example.com,"(job title placeholder, update sheet)"
+    38,"Nabangue, Sushimae",smnabangue,"Patron, Filip",fcpatron,sample.email@example.com,"(job title placeholder, update sheet)"
+    39,"Lam, Kevin Wai Yin",kslam,"Patron, Filip",fcpatron,sample.email@example.com,"(job title placeholder, update sheet)"
+    40,"Maligalig, Gener",glmaligalig,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    41,"Factor, Remylyn",rbfactor,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    42,"Arcadio, Dave John",daarcadio,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    43,"Pablo, Davemar",djpablo,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    44,"Decena, Dean Mark",dgdecena,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    45,"Palma, Gabriel",gapalma,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    46,"Villanueva, Kriezzle Andrei",kvillanueva,"Carandang, Marc Kevin",mpcarandang,sample.email@example.com,"(job title placeholder, update sheet)"
+    47,"Bacani, Reiniel",rmbacani,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    48,"Magbuhos, Michael",mzmagbuhos,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    49,"Dura, Krisha Dawn",kjdura,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    50,"Sobreo, Raffy",rbsobreo,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    51,"Berinia, Maria Joanna Rizette",mklas,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    52,"Espiritu, John Robbie",jsespiritu,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    53,"Cruz, Jay Carlo",jscruz,"Garing, Gerenz",glgaring,sample.email@example.com,"(job title placeholder, update sheet)"
+    54,"Bantugon, Vennson",vibantugon,"Maligalig, Gener",glmaligalig,sample.email@example.com,"(job title placeholder, update sheet)"
+    55,"Dawal, Anfernee Clark",adawal,"Maligalig, Gener",glmaligalig,sample.email@example.com,"(job title placeholder, update sheet)"
+    56,"Ignacio, Jielet J",jjignacio,"Maligalig, Gener",glmaligalig,sample.email@example.com,"(job title placeholder, update sheet)"
+    57,"Lozano, Ronel",rclozano,"Maligalig, Gener",glmaligalig,sample.email@example.com,"(job title placeholder, update sheet)"
+    58,"Malabanan, Sherlene",slmalabanan,"Maligalig, Gener",glmaligalig,sample.email@example.com,"(job title placeholder, update sheet)"
+    59,"Trinidad, Gerald",gmtrinidad,"Maligalig, Gener",glmaligalig,sample.email@example.com,"(job title placeholder, update sheet)"
+    60,"Agustin, Jazzmyne Rona",jmagustin,"Factor, Remylyn",rbfactor,sample.email@example.com,"(job title placeholder, update sheet)"
+    61,"Duque, Jesreal",jmduque,"Factor, Remylyn",rbfactor,sample.email@example.com,"(job title placeholder, update sheet)"
+    62,"Lee, Jenney M",jmlee,"Factor, Remylyn",rbfactor,sample.email@example.com,"(job title placeholder, update sheet)"
+    63,"Llanto, John Thimotee",jellanto,"Factor, Remylyn",rbfactor,sample.email@example.com,"(job title placeholder, update sheet)"
+    64,"Monville, Christian",cbmonville,"Factor, Remylyn",rbfactor,sample.email@example.com,"(job title placeholder, update sheet)"
+    65,"Tiu, Jherico John",jotiu,"Factor, Remylyn",rbfactor,sample.email@example.com,"(job title placeholder, update sheet)"
+    66,"Araza, John Kenneth",jparaza,"Arcadio, Dave John",daarcadio,sample.email@example.com,"(job title placeholder, update sheet)"
+    67,"Castalone, Adrian",accastalone,"Arcadio, Dave John",daarcadio,sample.email@example.com,"(job title placeholder, update sheet)"
+    68,"Janulgue, Thea Nicole",tsjanulgue,"Arcadio, Dave John",daarcadio,sample.email@example.com,"(job title placeholder, update sheet)"
+    69,"Salomabao, Ryann David",rjsalomabao,"Arcadio, Dave John",daarcadio,sample.email@example.com,"(job title placeholder, update sheet)"
+    70,"Zamora, Christopher Joshua",cdzamora,"Arcadio, Dave John",daarcadio,sample.email@example.com,"(job title placeholder, update sheet)"
+    71,"Acaja, Mary Rose",maacaja,"Pablo, Davemar",djpablo,sample.email@example.com,"(job title placeholder, update sheet)"
+    72,"Cañero, Christian Neil",ctcanero,"Pablo, Davemar",djpablo,sample.email@example.com,"(job title placeholder, update sheet)"
+    73,"Lizada, Ryan Danyl",rrlizada,"Pablo, Davemar",djpablo,sample.email@example.com,"(job title placeholder, update sheet)"
+    74,"Lovina, Edward Renzo",elovina,"Pablo, Davemar",djpablo,sample.email@example.com,"(job title placeholder, update sheet)"
+    75,"Tawat, Gregorio",gstawat,"Pablo, Davemar",djpablo,sample.email@example.com,"(job title placeholder, update sheet)"
+    76,"Amante, Clinton",cmamante,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    77,"Aranjuez, Gil",gsaranjuez,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    78,"Borbano, Allan Vincent",adborbano,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    79,"Corgue, Darwen",dccorgue,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    80,"Javellana, Cherry",cejavellana,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    81,"Palomaria, Ardie",aapalomaria,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    82,"Veloso, Kenneth",kaveloso,"Bacani, Reiniel",rmbacani,sample.email@example.com,"(job title placeholder, update sheet)"
+    83,"Abbas, Ahmad Johari",aaabbas,"Magbuhos, Michael",mzmagbuhos,sample.email@example.com,"(job title placeholder, update sheet)"
+    84,"Ampoloquio, Annie",atampoloquio,"Magbuhos, Michael",mzmagbuhos,sample.email@example.com,"(job title placeholder, update sheet)"
+    85,"Cabañete, Ted Bryon",tbcabanete,"Magbuhos, Michael",mzmagbuhos,sample.email@example.com,"(job title placeholder, update sheet)"
+    86,"Genciana, Roe Mathew",rvgenciana,"Magbuhos, Michael",mzmagbuhos,sample.email@example.com,"(job title placeholder, update sheet)"
+    87,"Ramilo, Nicole",nrramilo,"Magbuhos, Michael",mzmagbuhos,sample.email@example.com,"(job title placeholder, update sheet)"
+    88,"Roxas Jr., Rey Milo",rrroxas,"Magbuhos, Michael",mzmagbuhos,sample.email@example.com,"(job title placeholder, update sheet)"
+    89,"Delos Santos, David John",dcdelossantos,"Dura, Krisha Dawn",kjdura,sample.email@example.com,"(job title placeholder, update sheet)"
+    90,"Katigbak, Khristie Joy",klkatigbak,"Dura, Krisha Dawn",kjdura,sample.email@example.com,"(job title placeholder, update sheet)"
+    91,"Llavanes, Laurenz Dominic",ljllavanes,"Dura, Krisha Dawn",kjdura,sample.email@example.com,"(job title placeholder, update sheet)"
+    92,"Maghirang, James Patrick",jsmaghirang,"Dura, Krisha Dawn",kjdura,sample.email@example.com,"(job title placeholder, update sheet)"
+    93,"Saguinhon, Richmond",rssaguinhon,"Dura, Krisha Dawn",kjdura,sample.email@example.com,"(job title placeholder, update sheet)"
+    94,"Batallones, Alyanna Marie",agbatallones,"Sobreo, Raffy",rbsobreo,sample.email@example.com,"(job title placeholder, update sheet)"
+    95,"Canacan, Gennylyn",gjcanacan,"Sobreo, Raffy",rbsobreo,sample.email@example.com,"(job title placeholder, update sheet)"
+    96,"Dela Cruz, Dannah Nicole",dsdelacruz,"Sobreo, Raffy",rbsobreo,sample.email@example.com,"(job title placeholder, update sheet)"
+    97,"Mayled, Justin Paul",jnmayled,"Sobreo, Raffy",rbsobreo,sample.email@example.com,"(job title placeholder, update sheet)"
+    98,"Santos, Sean Hennessy",sdsantos,"Sobreo, Raffy",rbsobreo,sample.email@example.com,"(job title placeholder, update sheet)"
+    99,"Amora, Rogene",rbamora,"Berinia, Maria Joanna Rizette",mklas,sample.email@example.com,"(job title placeholder, update sheet)"
+    100,"Basbas, Janell-An",jpbasbas,"Berinia, Maria Joanna Rizette",mklas,sample.email@example.com,"(job title placeholder, update sheet)"
+    101,"Cenia, Elle Marie",emcenia,"Berinia, Maria Joanna Rizette",mklas,sample.email@example.com,"(job title placeholder, update sheet)"
+    102,"Lozada, Joseph Matthew",jmlozada,"Berinia, Maria Joanna Rizette",mklas,sample.email@example.com,"(job title placeholder, update sheet)"
+    103,"Pita, Mark Neil",mupita,"Berinia, Maria Joanna Rizette",mklas,sample.email@example.com,"(job title placeholder, update sheet)"
+    104,"Torres, Eunice Anne",evtorres,"Berinia, Maria Joanna Rizette",mklas,sample.email@example.com,"(job title placeholder, update sheet)"
+    105,"Hinampas, Jomary",jahinampas,"Espiritu, John Robbie",jsespiritu,sample.email@example.com,"(job title placeholder, update sheet)"
+    106,"Palma, Rina Ayesha",rfpalma,"Espiritu, John Robbie",jsespiritu,sample.email@example.com,"(job title placeholder, update sheet)"
+    107,"Parungao, Earl Patrick",emparungao,"Espiritu, John Robbie",jsespiritu,sample.email@example.com,"(job title placeholder, update sheet)"
+    108,"Calang, Xyrex",xacalang,"Cruz, Jay Carlo",jscruz,sample.email@example.com,"(job title placeholder, update sheet)"
+    109,"Gamilla, Allen Jay",angamilla,"Cruz, Jay Carlo",jscruz,sample.email@example.com,"(job title placeholder, update sheet)"
+    110,"Mendoza, Earl Brix",esmendoza,"Cruz, Jay Carlo",jscruz,sample.email@example.com,"(job title placeholder, update sheet)"
+    111,"Tabaculde, Nicole",natabaculde,"Cruz, Jay Carlo",jscruz,sample.email@example.com,"(job title placeholder, update sheet)"
+    112,"Vicencio, Mary Joyce",mlvicencio,"Cruz, Jay Carlo",jscruz,sample.email@example.com,"(job title placeholder, update sheet)"
+    113,"Agustin, Charles",clagustin,"Castillo, Sermilla",smcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    114,"Bathan, May Angeline",mbathan,"Castillo, Sermilla",smcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    115,"Doldolea, Theres Jean",tddoldolea,"Castillo, Sermilla",smcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    116,"Llurag, Mary Ann",mbllurag,"Castillo, Sermilla",smcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    117,"Barral, Irven Carl",ipbarral,"Abrogue&#241;a, John Raymond",jabroguena,sample.email@example.com,"(job title placeholder, update sheet)"
+    118,"Delos Reyes, Alekzandrei Nikolai",apdelosreyes,"Abrogue&#241;a, John Raymond",jabroguena,sample.email@example.com,"(job title placeholder, update sheet)"
+    119,"Macapato, Ayah",abmacapato,"Abrogue&#241;a, John Raymond",jabroguena,sample.email@example.com,"(job title placeholder, update sheet)"
+    120,"Pujanes, Jerlyn",jdpujanes,"Abrogue&#241;a, John Raymond",jabroguena,sample.email@example.com,"(job title placeholder, update sheet)"
+    121,"Sta Brigida, Peter John Kemp",prstabrigida,"Abrogue&#241;a, John Raymond",jabroguena,sample.email@example.com,"(job title placeholder, update sheet)"
+    122,"Aldea, Mary Joyce",mbaldea,"De Castro, Melvin",mndecastro,sample.email@example.com,"(job title placeholder, update sheet)"
+    123,"Quidlat, Annie Mae",aoquidlat,"De Castro, Melvin",mndecastro,sample.email@example.com,"(job title placeholder, update sheet)"
+    124,"Ruda, Rosal May",rgruda,"De Castro, Melvin",mndecastro,sample.email@example.com,"(job title placeholder, update sheet)"
+    125,"Sandoval, Ivie",ibsandoval,"De Castro, Melvin",mndecastro,sample.email@example.com,"(job title placeholder, update sheet)"
+    126,"Sosing, Michelle",mtsosing,"De Castro, Melvin",mndecastro,sample.email@example.com,"(job title placeholder, update sheet)"
+    127,"Acut, Rhea Vanessa",rpacut,"Cabral, Eduardo Jr.",eicabral,sample.email@example.com,"(job title placeholder, update sheet)"
+    128,"Asuncion, Mary Joyce",mlasuncion,"Cabral, Eduardo Jr.",eicabral,sample.email@example.com,"(job title placeholder, update sheet)"
+    129,"Bahian, Jeanita",jlbahian,"Cabral, Eduardo Jr.",eicabral,sample.email@example.com,"(job title placeholder, update sheet)"
+    130,"Maghinay, Dave Carl",dmmaghinay,"Cabral, Eduardo Jr.",eicabral,sample.email@example.com,"(job title placeholder, update sheet)"
+    131,"Navarez, Cyprian Charlie Miguel",ccnavarez,"Cabral, Eduardo Jr.",eicabral,sample.email@example.com,"(job title placeholder, update sheet)"
+    132,"Brigino, Ariel",ambrigino,"Cristobal, Julina Rose",jgcristobal,sample.email@example.com,"(job title placeholder, update sheet)"
+    133,"Bulawin, Pharah Jane",pbbulawin,"Cristobal, Julina Rose",jgcristobal,sample.email@example.com,"(job title placeholder, update sheet)"
+    134,"Dela Cruz, Roselle Joy",radelacruz,"Cristobal, Julina Rose",jgcristobal,sample.email@example.com,"(job title placeholder, update sheet)"
+    135,"Pajatin, John Kenneth",jtpajatin,"Cristobal, Julina Rose",jgcristobal,sample.email@example.com,"(job title placeholder, update sheet)"
+    136,"Pascua, Ritchel Alen",rapascua,"Cristobal, Julina Rose",jgcristobal,sample.email@example.com,"(job title placeholder, update sheet)"
+    137,"Tajoda, Jeff Jason",jttajoda,"Cristobal, Julina Rose",jgcristobal,sample.email@example.com,"(job title placeholder, update sheet)"
+    138,"Angeles, Mark Adrian",meangeles,"Patron, Filip",fcpatron,sample.email@example.com,"(job title placeholder, update sheet)"
+    139,"Porto, Mark Meryll",mbporto,"Patron, Filip",fcpatron,sample.email@example.com,"(job title placeholder, update sheet)"
+    140,"Apat Jr., Victor",vcapat,"Patron, Filip",fcpatron,sample.email@example.com,"(job title placeholder, update sheet)"
+    141,"Camus, Don Mc Andrew",dacamus,"Rollan, Mimi",mmrollan,sample.email@example.com,"(job title placeholder, update sheet)"
+    142,"Espeleta, Jesu Mari",jespeleta,"Rollan, Mimi",mmrollan,sample.email@example.com,"(job title placeholder, update sheet)"
+    143,"Manalo, Raymond",rcmanalo,"Rollan, Mimi",mmrollan,sample.email@example.com,"(job title placeholder, update sheet)"
+    144,"Mamanta, Mark Anthony",mmmamanta,"Mehoy, Meliza",mbcapino,sample.email@example.com,"(job title placeholder, update sheet)"
+    145,"Bulanadi, Bless",blbulanadi,"Mehoy, Meliza",mbcapino,sample.email@example.com,"(job title placeholder, update sheet)"
+    146,"Loteria, Elmer Joseph",edloteria,"Mehoy, Meliza",mbcapino,sample.email@example.com,"(job title placeholder, update sheet)"
+    147,"Mercado, Christopher John",cmmercado,"Mehoy, Meliza",mbcapino,sample.email@example.com,"(job title placeholder, update sheet)"
+    148,"Riazon, Carlos",crriazon,"Mehoy, Meliza",mbcapino,sample.email@example.com,"(job title placeholder, update sheet)"
+    149,"Echem, Hans Jayce",hnechem,"Albarracin, Renee Anne",rvalbarracin,sample.email@example.com,"(job title placeholder, update sheet)"
+    150,"Layos, Anton Kristian",aklayos,"Albarracin, Renee Anne",rvalbarracin,sample.email@example.com,"(job title placeholder, update sheet)"
+    151,"Matibag, Jake Marvin Benito",jrmatibag,"Albarracin, Renee Anne",rvalbarracin,sample.email@example.com,"(job title placeholder, update sheet)"
+    152,"Mocorro, John Raymund",jamocorro,"Albarracin, Renee Anne",rvalbarracin,sample.email@example.com,"(job title placeholder, update sheet)"
+    153,"Angeles, Mark Adrian",meangeles,"Castillo, Frank Angelo",fdcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    154,"Apat Jr., Victor",vcapat,"Castillo, Frank Angelo",fdcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    155,"Porto, Mark Meryll",mbporto,"Castillo, Frank Angelo",fdcastillo,sample.email@example.com,"(job title placeholder, update sheet)"
+    157,"Macana, Geogenesis",gmacana,"Avondo, Charade",cavondo,sample.email@example.com,Operations Manager
+    158,"Reyes, Anthony Fer",asreyes,"Macana, Geogenesis",gmacana,sample.email@example.com,Division Manager
+    159,"Ng, Juan Luis",jdng,"Macana, Geogenesis",gmacana,sample.email@example.com,Division Manager
+    160,"Gallarde, Kyle",ksgallarde,"Reyes, Anthony Fer",asreyes,sample.email@example.com,Section Supervisor
+    161,"Lacida, Earl Kenneth",ejlacida,"Reyes, Anthony Fer",asreyes,sample.email@example.com,Section Supervisor
+    162,"Berinia, Carlo",ccberinia,"Macana, Geogenesis",gmacana,sample.email@example.com,Section Supervisor
+    163,"Soliman, John Dave",jasoliman,"Reyes, Anthony Fer",asreyes,sample.email@example.com,Section Supervisor
+    164,"Putian, Marteene",maputian,"Soliman, John Dave",jasoliman,sample.email@example.com,Unit Supervisor
+    165,"Roa, Mary Grace",maroa,"Soliman, John Dave",jasoliman,sample.email@example.com,Senior DE
+    166,"Lacap, Joshua A",jalacap,"Soliman, John Dave",jasoliman,sample.email@example.com,Senior DE
+    167,"Magallon, Richmond",remagallon,"Macana, Geogenesis",gmacana,sample.email@example.com,Staff DE
+    168,"Diaz, Aaron Darell",acdiaz,"Soliman, John Dave",jasoliman,sample.email@example.com,Senior DE
+    169,"Roman, Ivan-Jae G",igroman,"Soliman, John Dave",jasoliman,sample.email@example.com,Senior DE
+    170,"Batingal, Marion Albert",mtbatingal,"Ng, Juan Luis",jdng,sample.email@example.com,Section Supervisor
+    171,"Geralla, Leo E",legeralla,"Batingal, Marion Albert",mtbatingal,sample.email@example.com,Senior DE
+    172,"Danila, Jefferson",jadanila,"Berinia, Carlo",ccberinia,sample.email@example.com,DE
+    173,"Baluyot, John Joseph",jpbaluyot,"Lacida, Earl Kenneth",ejlacida,sample.email@example.com,DE
+    174,"De Leon, Roeden",rvdeleon,"Putian, Marteene",maputian,sample.email@example.com,DE
+    175,"Turing, Sheena Marie",sdturing,"Ng, Juan Luis",jdng,sample.email@example.com,Senior DE
+    176,"Cañete, Mark",mscanete,"Gallarde, Kyle",ksgallarde,sample.email@example.com,DE
+    177,"Lasala, Michael Gibson",melasala,"Gallarde, Kyle",ksgallarde,sample.email@example.com,DE
+    178,"Velasco, Rhys Jordan",rqvelasco,"Lacida, Earl Kenneth",ejlacida,sample.email@example.com,DE
+    179,"Lim, Mark Andrew Victor",mmlim,"Lacida, Earl Kenneth",ejlacida,sample.email@example.com,DE
+    180,"Viray, Arthur Eliz",asviray,"Ng, Juan Luis",jdng,sample.email@example.com,DE
+    181,"Fabra, John Paulo",jsfabra,"Lacap, Joshua A",jalacap,sample.email@example.com,Junior DE
+    182,"Fabellar, Cris Angelo",cmfabellar,"Baluyot, John Joseph",jpbaluyot,sample.email@example.com,Junior DE
+    183,"Denaga, Lloyd Martin",ledenaga,"Putian, Marteene",maputian,sample.email@example.com,Junior DE
+    184,"Pote, James Edward",jcpote,"Velasco, Rhys Jordan",rqvelasco,sample.email@example.com,Junior DE
+    185,"Jamali, Chlyd Yrr",cpjamali,"Baluyot, John Joseph",jpbaluyot,sample.email@example.com,Junior DE
+    186,"Doria, Gilbert James",gddoria,"Reyes, Anthony Fer",asreyes,sample.email@example.com,Junior DE
+    187,"Zapanta, Ma. Kathrina",mczapanta,"Hilario, Janielle",jfhilario,sample.email@example.com,DE
+    188,"Santos, Nicko",ndsantos,"Baluyot, John Joseph",jpbaluyot,sample.email@example.com,Junior DE
+    189,"Francisco, Arvin Jay",acfrancisco,"Diaz, Aaron Darell",acdiaz,sample.email@example.com,DE
+    190,"Villanueva, Elmer Jr.",eovillanueva,"Hilario, Janielle",jfhilario,sample.email@example.com,Junior DE
+    191,"Visita, Patrick A.",pavisita,"Putian, Marteene",maputian,sample.email@example.com,Junior DE
+    192,"Ramos, Patrick",pgramos,"Gallarde, Kyle",ksgallarde,sample.email@example.com,Junior DE
+    193,"Robles, Vincent",vsrobles,"Gallarde, Kyle",ksgallarde,sample.email@example.com,DE
+    194,"Rivera, Joan",jdrivera,"Velasco, Rhys Jordan",rqvelasco,sample.email@example.com,Junior DE
+    195,"Arancina, Trisha Mari",tdarancina,"Putian, Marteene",maputian,sample.email@example.com,Junior DE
+    196,"Latido, Davenn",dglatido,"Turing, Sheena Marie",sdturing,sample.email@example.com,Junior DE
+    197,"Villanueva, Christian Kevin",ccvillanueva,"Baluyot, John Joseph",jpbaluyot,sample.email@example.com,DE
+    198,"Quemado, Alain Melan",acquemado,"Macana, Geogenesis",gmacana,sample.email@example.com,Unit Supervisor
+    199,"Porras, Lesther Miles",lsporras,"Batingal, Marion Albert",mtbatingal,sample.email@example.com,Junior DE
+    200,"Mercado, Ricohermoso",rmmercado,"Diaz, Aaron Darell",acdiaz,sample.email@example.com,DE
+    201,"Solis, Kim Patrick",ksolis,"Turing, Sheena Marie",sdturing,sample.email@example.com,Junior DE
+    202,"Chua, Emerson",etchua,"Velasco, Rhys Jordan",rqvelasco,sample.email@example.com,Junior DE
+    203,"Antonio, Nichol Alvin",ncantonio,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior DE
+    204,"Hilario, Janielle",jfhilario,"Ng, Juan Luis",jdng,sample.email@example.com,DE
+    205,"Agbayani, Ruzzel G.",rgagbayani,"Hilario, Janielle",jfhilario,sample.email@example.com,"(job title placeholder, update sheet)"
+    206,"Eizaguirre, Ron Ruzzel",rreizaguirre,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior DE
+    207,"Esguerra, Rizzele",raesguerra,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior DE
+    208,"Pantorillo, Michael Anthony",mpantorillo,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior DE
+    209,"Bautista, Francis Ryan",flbautista,"Lacap, Joshua A",jalacap,sample.email@example.com,Junior DE
+    210,"Roxas, Dianne Michelle",drroxas,"Turing, Sheena Marie",sdturing,sample.email@example.com,Junior DE
+    211,"Cosme, Trizia Anne",tncosme,"Baluyot, John Joseph",jpbaluyot,sample.email@example.com,Senior DE
+    212,"Pineda, Kevin James",kgpineda,"Berinia, Carlo",ccberinia,sample.email@example.com,Staff DE
+    213,"Gahite, Olen",osgahite,"Berinia, Carlo",ccberinia,sample.email@example.com,Staff DE
+    214,"Taquilid, Christher Edmar",cftaquilid,"Velasco, Rhys Jordan",rqvelasco,sample.email@example.com,DE
+    215,"Toledana, Karlo",kdtoledana,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior LE
+    216,"Mori, Eliebert James",emori,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior LE
+    217,"Laurel, Daniel",dalaurel,"Berinia, Carlo",ccberinia,sample.email@example.com,Junior LE
+    218,"Garcia, Karl Brian",kvgarcia,"Batingal, Marion Albert",mtbatingal,sample.email@example.com,Junior LE
+    219,"Quinto, Ella Nicole",eoquinto,"Batingal, Marion Albert",mtbatingal,sample.email@example.com,Junior LE
+    220,"Bashier, Ahmad",apbashier,"Hilario, Janielle",jfhilario,sample.email@example.com,Junior LE
+    221,"Ambulo, Francis",fdambulo,"Gallarde, Kyle",ksgallarde,sample.email@example.com,Junior LE
+    222,"Gerona, Julius",jggerona,"Velasco, Rhys Jordan",rqvelasco,sample.email@example.com,Junior LE
+    223,"Estrera, Ma. Denize",maestrera,"Gallarde, Kyle",ksgallarde,sample.email@example.com,Junior LE
+    224,"Santos, Edvemhen",eesantos,"Turing, Sheena Marie",sdturing,sample.email@example.com,Junior DE
+    225,"Marco, Karla Denise",kgmarco,"Hilario, Janielle",jfhilario,sample.email@example.com,"(job title placeholder, update sheet)"
+    226,"Buenaobra, Vash Dyllan",vabuenaobra,"Turing, Sheena Marie",sdturing,sample.email@example.com,"(job title placeholder, update sheet)"
+    228,"Santiago, Emerson",ersantiago,"Avondo, Charade",cavondo,sample.email@example.com,Operations Manager
+    229,DAO,dao,"Santiago, Emerson",ersantiago,sample.email@example.com,
+    230,ITD,itd,"Santiago, Emerson",ersantiago,sample.email@example.com,
+    231,"Florendo, Florence",ftflorendo,DAO,dao,sample.email@example.com,"(job title placeholder, update sheet)"
+    232,"San Juan, Maria Roselle",mpsanjuan,DAO,dao,sample.email@example.com,"(job title placeholder, update sheet)"
+    233,"Guaves, Christian",cmguaves,ITD,itd,sample.email@example.com,"(job title placeholder, update sheet)"
+    234,"Aya-ay, Shiela Mae",scayaay,"Guaves, Christian",cmguaves,sample.email@example.com,"(job title placeholder, update sheet)"
+    235,"Rogero, Jan",jcrogero,"Guaves, Christian",cmguaves,sample.email@example.com,"(job title placeholder, update sheet)"
+    236,"Soriano, Juan Carlos",jfsoriano,"Florendo, Florence",ftflorendo,sample.email@example.com,"(job title placeholder, update sheet)"
+    237,"Rufon, Ron Benjamin",rerufon,"San Juan, Maria Roselle",mpsanjuan,sample.email@example.com,"(job title placeholder, update sheet)"
+    238,"Villadelrey, Jayvee",jzvilladelrey,"San Juan, Maria Roselle",mpsanjuan,sample.email@example.com,"(job title placeholder, update sheet)"
+    239,"Conde, Tedrik Rom",tdconde,"Guaves, Christian",cmguaves,sample.email@example.com,"(job title placeholder, update sheet)"
+    240,"Pantoja, Anjoe",aepantoja,"Avondo, Charade",cavondo,sample.email@example.com,Admin Manager
+    241,"Gestupa, Marie Antoinette P.",mpgestupa,"Pantoja, Anjoe",aepantoja,sample.email@example.com,"(job title placeholder, update sheet)"
+    242,"Taladtad, Jessie",jdtaladtad,"Pantoja, Anjoe",aepantoja,sample.email@example.com,"(job title placeholder, update sheet)"
+    243,"Visaya, Kristel Anne",kcvisaya,"Avondo, Charade",cavondo,sample.email@example.com,"(job title placeholder, update sheet)"
+    244,"Jaca, Nicolas Aaron",ndjaca,"Visaya, Kristel Anne",kcvisaya,sample.email@example.com,"(job title placeholder, update sheet)"
+    245,"Castañares, Rachelei Jania",rscastanares,"Visaya, Kristel Anne",kcvisaya,sample.email@example.com,"(job title placeholder, update sheet)"
+    246,"Magpantay, Jaymarie",jbmagpantay,"Visaya, Kristel Anne",kcvisaya,sample.email@example.com,"(job title placeholder, update sheet)"
+    247,"Oh, Agnes",aoh,"Avondo, Charade",cavondo,sample.email@example.com,TnD Manager
+    248,"Vierneza, Devie-anne",dsvierneza,"Avondo, Charade",cavondo,sample.email@example.com,FAD Manager
+    249,"Albor, Myra",mmalbor,"Vierneza, Devie-anne",dsvierneza,sample.email@example.com,"(job title placeholder, update sheet)"
+    250,"Macalintal, Marivic",mvmacalintal,"Vierneza, Devie-anne",dsvierneza,sample.email@example.com,"(job title placeholder, update sheet)"
+    251,"Rosales, Dannah Christine",dmrosales,"Albor, Myra",mmalbor,sample.email@example.com,"(job title placeholder, update sheet)"
+    252,"Frane, Joan",jfrane,"Macalintal, Marivic",mvmacalintal,sample.email@example.com,"(job title placeholder, update sheet)"
+    253,"Canlubo, Yael",ylcanlubo,"Albor, Myra",mmalbor,sample.email@example.com,"(job title placeholder, update sheet)"
+    254,"Wong, Marcus Wei Kit Lim",mkwong,"Avondo, Charade",cavondo,sample.email@example.com,BD Manager
+    255,"Santos, Jose Miguel Rafael",jmsantos,"Wong, Marcus Wei Kit Lim",mkwong,sample.email@example.com,"(job title placeholder, update sheet)"
+    256,"Cabarteja, Chenny",cmcabarteja,"Wong, Marcus Wei Kit Lim",mkwong,sample.email@example.com,"(job title placeholder, update sheet)"
+    257,"Del Monte, Hazel Grace",hgdelmonte,"Cabarteja, Chenny",cmcabarteja,sample.email@example.com,"(job title placeholder, update sheet)"
+    258,"Ocampo, Cherie Lou",cpocampo,"Avondo, Charade",cavondo,sample.email@example.com,HR Manager
+    259,"Bataller, Kristinell",kmbataller,"Ocampo, Cherie Lou",cpocampo,sample.email@example.com,HRBP
+    260,"Abellanosa, Charizze",ctabellanosa,"Ocampo, Cherie Lou",cpocampo,sample.email@example.com,HRBP
+    261,"Gojar, An Christine",agojar,"Ocampo, Cherie Lou",cpocampo,sample.email@example.com,HRBP
+    262,"Goyena, Jonathan",jmgoyena,"Avondo, Charade",cavondo,sample.email@example.com,Consultant
+    263,"Malubay, Mary Joyce",mvmalubay,"Oh, Agnes",aoh,sample.email@example.com,"(job title placeholder, update sheet)"
+    265,"De Leon, Darniel",dideleon,"Oh, Agnes",aoh,sample.email@example.com,"(job title placeholder, update sheet)"
+    266,"Algado, Andrew",acalgado,"Avondo, Charade",cavondo,sample.email@example.com,Operations Manager
+    267,"Laggui, Louie-nald",lvlaggui,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    268,"Cuenca, Ruby Ann",rscuenca,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    269,"Hamak, Meynard",mthamak,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    270,"Yabashi, Kenji",kjyabashi,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    271,"Mateo, Elaine Marie",eamateo,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    272,"Bautista, Reniel Joseph",rebautista,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    273,"Amora, Shayne",sdamora,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    274,"Llurag, Mary Ann",mbllurag,"Algado, Andrew",acalgado,sample.email@example.com,"(job title placeholder, update sheet)"
+    275,"Nicor, Regine",rlnicor,"Laggui, Louie-nald",lvlaggui,sample.email@example.com,"(job title placeholder, update sheet)"
+    276,"Regencia, El Toni Genesis",erregencia,"Laggui, Louie-nald",lvlaggui,sample.email@example.com,"(job title placeholder, update sheet)"
+    277,"Balingit, John Gabriel",jbbalingit,"Laggui, Louie-nald",lvlaggui,sample.email@example.com,"(job title placeholder, update sheet)"
+    278,"Laodenio, Virgel",vdlaodenio,"Laggui, Louie-nald",lvlaggui,sample.email@example.com,"(job title placeholder, update sheet)"
+    279,"Manlambus, Cedric S.",csmanlambus,"Cuenca, Ruby Ann",rscuenca,sample.email@example.com,"(job title placeholder, update sheet)"
+    280,"Agudo, Mary Cris",mbagudo,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    281,"Camarinta, Arlene Mae",afcamarinta,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    282,"Damgo, Michael Vincent",mqdamgo,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    283,"Gunayan, Landrey Jean",ljgunayan,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    284,"Antao, Szara",swantao,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    285,"Anticamara, Jess Mart",jbanticamara,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    286,"Bibera, Kurt",kcbibera,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    287,"Harap, Joey",jqharap,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    288,"Pacaña, Marvin",mppacana,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    289,"Canto, Ina Coleen",iacanto,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    290,"Mari, Jhomar",jcmari,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    291,"Regahal, Faith",fcregahal,"Hamak, Meynard",mthamak,sample.email@example.com,"(job title placeholder, update sheet)"
+    292,"Delos Santos, Paulo",ptdelossantos,"Yabashi, Kenji",kjyabashi,sample.email@example.com,"(job title placeholder, update sheet)"
+    293,"Baluyut, Gian Kristian S",gsbaluyut,"Yabashi, Kenji",kjyabashi,sample.email@example.com,"(job title placeholder, update sheet)"
+    294,"Tutor, Crisha Alyssa",cmtutor,"Yabashi, Kenji",kjyabashi,sample.email@example.com,"(job title placeholder, update sheet)"
+    295,"Dimaunahan, Charles Aldrin",csdimaunahan,"Yabashi, Kenji",kjyabashi,sample.email@example.com,"(job title placeholder, update sheet)"
+    296,"Usman, Jamalludin Salim",jpusman,"Yabashi, Kenji",kjyabashi,sample.email@example.com,"(job title placeholder, update sheet)"
+    297,"Pandapatan, Alyanna Ayesha",aapandapatan,"Bautista, Reniel Joseph",rebautista,sample.email@example.com,"(job title placeholder, update sheet)"
+    298,"Camba, Kim",klcamba,"Bautista, Reniel Joseph",rebautista,sample.email@example.com,"(job title placeholder, update sheet)"
+    299,"Bagtindon, Reynith",robagtindon,"Mateo, Elaine Marie",eamateo,sample.email@example.com,"(job title placeholder, update sheet)"
+    300,"Oyos, Daryl Ivan",droyos,"Mateo, Elaine Marie",eamateo,sample.email@example.com,"(job title placeholder, update sheet)"
+    302,"Ezawa, Kathrize Maika",ktezawa,"Ng, Juan Luis",jdng,sample.email@example.com,BG Supervisor
+    303,"Calibara, Drexanne",decalibara,"Ezawa, Kathrize Maika",ktezawa,sample.email@example.com,DE
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: web
+  name: web-cm0

@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.env
+
+# Django
+*.pyc
+*.db
+db.sqlite3
+/media
+/staticfiles
+*.pot
+*.py~
+
+# Docker/K8s
+*.tar
+docker-compose.override.yml
+*.pid
+.env
+*.bak
+
+# VS Code
+.vscode/
+
+# Kubernetes
+k8s/*.bak
+
+# IgnoreFolder
+IgnoreFolder

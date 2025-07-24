@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html, body{
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin:0;
+  overflow: hidden;
+  font-family: Helvetica;
+}
+#tree{
+  width:100%;
+  height:100%;
+}
+</style>
+<script>
+window.onload = function () {
+    var chart = new OrgChart(document.getElementById("tree"), { 
+        template: 'diva',
+        layout: OrgChart.mixed,
+        mouseScrool: OrgChart.none,
+        scaleInitial: OrgChart.match.width,
+        nodeBinding: {
+            img_0: "img",
+            field_0: "name",
+            field_1: "title"
+        },
+        toolbar: {
+        layout: false,
+        zoom: true,
+        fit: true,
+        expandAll: true
+        },
+        collapse: {
+            level: 3
+        },
+
+        nodes: [
+			ORGCHARTDATA_PLACEHOLDER
+        ]
+    });
+    document.getElementById("selectTemplate").addEventListener("change", function () {
+        chart.config.template = this.value;
+        chart.draw();
+    });
+}
+
+
+</script>
+</head>
+<body>
+
+<script src="https://balkan.app/js/OrgChart.js"></script>
+
+<select style="position: absolute;right: 10px;top: 10px;font-size: 10px;padding: 10px;background-color: #F57C00;color: #ffffff;width: 100px;z-index:2;" id="selectTemplate">
+    <option>olivia</option>
+    <option>diva</option>
+    <option>mila</option>
+    <option>polina</option>
+    <option>mery</option>
+    <option>rony</option>
+    <option>belinda</option>
+    <option>ula</option>
+    <option>ana</option>
+    <option>isla</option>
+    <option>deborah</option>
+</select>
+
+<div id="tree"></div>
+</body>
+</html> 
