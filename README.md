@@ -146,8 +146,11 @@ Built and maintained by **AaronRuB1o**
 
 ## References
 [Django to Docker and Docker-Compose](https://medium.com/@dryalcinmehmet/drf-part-6-mastering-django-rest-framework-docker-and-docker-composing-the-project-d2b926fefb84)
+
 [K8s Probes](https://stackoverflow.com/questions/65858309/why-do-i-need-3-different-kind-of-probes-in-kubernetes-startupprobe-readinessp)
+
 [Kompose Convert to K8s resources](https://kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/)
+
 [Using Minikube as Replacement Docker](https://minikube.sigs.k8s.io/docs/tutorials/docker_desktop_replacement/#cmd)
 
 ## Disclaimer
